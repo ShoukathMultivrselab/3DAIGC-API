@@ -420,6 +420,7 @@ pretrained
 
 # legacy code and misc 
 legacy 
+docs/vibe_coding_legacy
 
 # debugs thirdparty 
 thirdparty_work

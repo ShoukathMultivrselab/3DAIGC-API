@@ -21,7 +21,9 @@ from .routers import (
     auto_rigging,
     file_upload,
     mesh_generation,
+    mesh_retopology,
     mesh_segmentation,
+    mesh_uv_unwrapping,
     system,
 )
 
@@ -232,6 +234,12 @@ app.include_router(auto_rigging.router, prefix="/api/v1", tags=["Auto Rigging"])
 
 app.include_router(
     mesh_segmentation.router, prefix="/api/v1", tags=["Mesh Segmentation"]
+)
+
+app.include_router(mesh_retopology.router, prefix="/api/v1", tags=["Mesh Retopology"])
+
+app.include_router(
+    mesh_uv_unwrapping.router, prefix="/api/v1", tags=["Mesh UV Unwrapping"]
 )
 
 

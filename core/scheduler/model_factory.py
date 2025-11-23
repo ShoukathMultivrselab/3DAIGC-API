@@ -82,6 +82,20 @@ class ModelFactory:
             "module": "adapters.unirig_adapter",
             "class": "UniRigAdapter",
         },
+        # FastMesh adapters
+        "fastmesh_v1k_retopology": {
+            "module": "adapters.fastmesh_adapter",
+            "class": "FastMeshRetopologyAdapter",
+        },
+        "fastmesh_v4k_retopology": {
+            "module": "adapters.fastmesh_adapter",
+            "class": "FastMeshRetopologyAdapter",
+        },
+        # PartUV adapters
+        "partuv_uv_unwrapping": {
+            "module": "adapters.partuv_adapter",
+            "class": "PartUVUnwrappingAdapter",
+        },
     }
 
     @classmethod
@@ -444,6 +458,33 @@ def get_default_model_configs() -> Dict[str, Dict[str, Any]]:
                 model_id="unirig_auto_rig",
                 feature_type="auto_rig",
                 vram_requirement=9216,  # 9GB
+            )
+        }
+    )
+
+    # FastMesh models
+    configs.update(
+        {
+            "fastmesh_v1k_retopology": ModelFactory.create_model_config(
+                model_id="fastmesh_v1k_retopology",
+                feature_type="mesh_retopology",
+                vram_requirement=8192,  # 8GB
+            ),
+            "fastmesh_v4k_retopology": ModelFactory.create_model_config(
+                model_id="fastmesh_v4k_retopology",
+                feature_type="mesh_retopology",
+                vram_requirement=8192,  # 8GB
+            ),
+        }
+    )
+
+    # PartUV models
+    configs.update(
+        {
+            "partuv_uv_unwrapping": ModelFactory.create_model_config(
+                model_id="partuv_uv_unwrapping",
+                feature_type="uv_unwrapping",
+                vram_requirement=6144,  # 6GB
             )
         }
     )

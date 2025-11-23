@@ -128,3 +128,31 @@ part_completion:
     model_path: "thirdparty/HoloPart"
     enabled: true
     max_workers: 1
+
+# mesh retopology
+mesh_retopology:
+  fastmesh_v1k_retopology:
+    vram_requirement: 8192  # MB
+    supported_inputs: ["obj", "glb", "ply", "stl"]
+    supported_outputs: ["obj", "glb", "ply"]
+    model_path: "pretrained/FastMesh-V1K"
+    enabled: true
+    max_workers: 1
+    
+  fastmesh_v4k_retopology:
+    vram_requirement: 8192  # MB
+    supported_inputs: ["obj", "glb", "ply", "stl"]
+    supported_outputs: ["obj", "glb", "ply"]
+    model_path: "pretrained/FastMesh-V4K"
+    enabled: true
+    max_workers: 1
+
+# UV unwrapping
+uv_unwrapping:
+  partuv_uv_unwrapping:
+    vram_requirement: 6144  # MB
+    supported_inputs: ["obj", "glb"]
+    supported_outputs: ["obj"]
+    model_path: "pretrained/PartField/model_objaverse.ckpt"
+    enabled: true
+    max_workers: 1

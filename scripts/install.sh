@@ -7,7 +7,7 @@ echo "The installation may take a while, please wait..."
 echo ""
 
 echo "[INFO] Creating conda environment '3daigc-api' with Python 3.10..."
-conda create -n 3daigc-api python=3.10 -y
+# conda create -n 3daigc-api python=3.10 -y
 if [ $? -eq 0 ]; then
     echo "[SUCCESS] Conda environment created successfully"
 else
@@ -141,7 +141,7 @@ echo "[INFO] Changing directory to thirdparty/Hunyuan3D-2.1..."
 cd ../../thirdparty/Hunyuan3D-2.1
 echo "[INFO] Installing custom rasterizer for Hunyuan3D 2.1..."
 cd hy3dpaint/custom_rasterizer
-pip install -e .
+# pip install -e .
 if [ $? -eq 0 ]; then
     echo "[SUCCESS] Hunyuan3D 2.1 custom rasterizer installed"
 else
@@ -218,6 +218,30 @@ fi
 ### part packer end ###
 echo "[SUCCESS] PartPacker installation completed"
 
+### partuv(requires only bpy, partuv) ###
+echo "[INFO] Installing partuv requirements..."
+pip install seaborn partuv 
+if [ $? -eq 0 ]; then
+    echo "[SUCCESS] partuv requirements installed"
+else
+    echo "[ERROR] Failed to install partuv requirements"
+    exit 1
+fi
+pip install blenderproc 
+### partuv end ###
+
+### FastMesh ###
+cd ../../thirdparty/FastMesh 
+echo "[INFO] Installing FastMesh requirements..."
+pip install -r requirement_extra.txt
+if [ $? -eq 0 ]; then
+    echo "[SUCCESS] FastMesh requirements installed"
+else
+    echo "[ERROR] Failed to install FastMesh requirements"
+    exit 1
+fi
+### FastMesh end ###
+
 cd ../../
 
 echo ""
@@ -274,8 +298,8 @@ python -c "import kaolin; print(kaolin.__version__)" && echo "Kaolin installed s
 python -c "import open3d; import pymeshlab" && echo "Open3D and pymeshlab installed successfully" || echo "Failed"
 
 # install other runtime dependencies
-sudo apt update
-sudo apt install libsm6 libegl1 libegl1-mesa libgl1-mesa-dev -y # for rendering 
+apt update
+apt install libsm6 libegl1 libegl1-mesa libgl1-mesa-dev -y # for rendering 
 
 
 

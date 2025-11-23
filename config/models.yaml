@@ -132,7 +132,7 @@ part_completion:
 # mesh retopology
 mesh_retopology:
   fastmesh_v1k_retopology:
-    vram_requirement: 8192  # MB
+    vram_requirement: 16384  # MB
     supported_inputs: ["obj", "glb", "ply", "stl"]
     supported_outputs: ["obj", "glb", "ply"]
     model_path: "pretrained/FastMesh-V1K"
@@ -140,7 +140,7 @@ mesh_retopology:
     max_workers: 1
     
   fastmesh_v4k_retopology:
-    vram_requirement: 8192  # MB
+    vram_requirement: 24500  # MB
     supported_inputs: ["obj", "glb", "ply", "stl"]
     supported_outputs: ["obj", "glb", "ply"]
     model_path: "pretrained/FastMesh-V4K"
@@ -150,7 +150,7 @@ mesh_retopology:
 # UV unwrapping
 uv_unwrapping:
   partuv_uv_unwrapping:
-    vram_requirement: 6144  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["obj", "glb"]
     supported_outputs: ["obj"]
     model_path: "pretrained/PartField/model_objaverse.ckpt"

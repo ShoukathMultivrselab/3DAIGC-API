@@ -26,7 +26,7 @@ def fastmesh_adapter():
 def sample_mesh_path():
     """Provide a sample mesh file path for testing."""
     # Use a sample mesh from the assets folder
-    mesh_path = "assets/example_mesh/typical_creature_furry.obj"
+    mesh_path = "assets/example_retopo/001.obj"
     if os.path.exists(mesh_path):
         return mesh_path
     pytest.skip("Sample mesh file not found")

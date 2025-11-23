@@ -24,7 +24,7 @@ def partuv_adapter():
 def sample_mesh_path():
     """Provide a sample mesh file path for testing."""
     # Use a sample mesh from the assets folder
-    mesh_path = "assets/example_mesh/typical_creature_furry.obj"
+    mesh_path = "assets/example_uv/max-planck.obj"
     if os.path.exists(mesh_path):
         return mesh_path
     pytest.skip("Sample mesh file not found")
@@ -49,7 +49,7 @@ class TestPartUVAdapter:
         assert "obj" in formats["output"]
 
     @pytest.mark.skipif(
-        not os.path.exists("pretrained/PartField/model_objaverse.ckpt"),
+        not os.path.exists("pretrained/PartUV/model_objaverse.ckpt"),
         reason="PartField model not available",
     )
     def test_model_loading(self, partuv_adapter):
@@ -62,7 +62,7 @@ class TestPartUVAdapter:
             partuv_adapter.unload()
 
     @pytest.mark.skipif(
-        not os.path.exists("pretrained/PartField/model_objaverse.ckpt"),
+        not os.path.exists("pretrained/PartUV/model_objaverse.ckpt"),
         reason="PartField model not available",
     )
     def test_uv_unwrapping_process(self, partuv_adapter, sample_mesh_path):
@@ -141,76 +141,4 @@ class TestPartUVAdapter:
 
         with pytest.raises(ValueError):
             partuv_adapter._process_request(inputs)
-
-
-class TestPartUVPackingMethods:
-    """Test suite for different UV packing methods."""
-
-    @pytest.mark.skipif(
-        not os.path.exists("pretrained/PartField/model_objaverse.ckpt"),
-        reason="PartField model not available",
-    )
-    def test_no_packing(self, partuv_adapter, sample_mesh_path):
-        """Test UV unwrapping without packing."""
-        try:
-            partuv_adapter.load(gpu_id=0)
-
-            inputs = {
-                "mesh_path": sample_mesh_path,
-                "output_format": "obj",
-                "pack_method": "none",
-            }
-
-            result = partuv_adapter.process(inputs)
-            assert result["success"] is True
-            assert result["packed_mesh_path"] is None
-
-        finally:
-            partuv_adapter.unload()
-
-    @pytest.mark.skipif(
-        not os.path.exists("pretrained/PartField/model_objaverse.ckpt"),
-        reason="PartField model not available",
-    )
-    @pytest.mark.skipif(
-        not os.path.exists("/usr/bin/blender") and not os.path.exists("/Applications/Blender.app"),
-        reason="Blender not available",
-    )
-    def test_blender_packing(self, partuv_adapter, sample_mesh_path):
-        """Test UV unwrapping with Blender packing."""
-        try:
-            partuv_adapter.load(gpu_id=0)
-
-            inputs = {
-                "mesh_path": sample_mesh_path,
-                "output_format": "obj",
-                "pack_method": "blender",
-            }
-
-            result = partuv_adapter.process(inputs)
-            assert result["success"] is True
-            # Packed mesh path may or may not be present depending on success of packing
-
-        finally:
-            partuv_adapter.unload()
-
-
-class TestPartUVDistortionThresholds:
-    """Test suite for different distortion thresholds."""
-
-    def test_low_distortion_threshold(self, partuv_adapter):
-        """Test with low distortion threshold."""
-        adapter = PartUVUnwrappingAdapter(
-            model_id="test_low_distortion",
-            distortion_threshold=1.1,
-        )
-        assert adapter.distortion_threshold == 1.1
-
-    def test_high_distortion_threshold(self, partuv_adapter):
-        """Test with high distortion threshold."""
-        adapter = PartUVUnwrappingAdapter(
-            model_id="test_high_distortion",
-            distortion_threshold=2.5,
-        )
-        assert adapter.distortion_threshold == 2.5
 

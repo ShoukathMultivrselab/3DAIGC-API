@@ -19,9 +19,6 @@ import trimesh
 logger = logging.getLogger(__name__)
 
 
-import partuv
-
-
 class PartUVError(Exception):
     """Custom exception for PartUV-related errors."""
 
@@ -62,8 +59,8 @@ class PartUVRunner:
         self.partuv_root = Path(partuv_root)
 
         # Add PartUV to Python path
-        if str(self.partuv_root) not in sys.path:
-            sys.path.insert(0, str(self.partuv_root))
+        # if str(self.partuv_root) not in sys.path:
+            # sys.path.insert(0, str(self.partuv_root))
 
         # Configuration setup
         if config_path is None:
@@ -134,7 +131,7 @@ class PartUVRunner:
             Tuple of (mesh, tree_filename, tree_dict, preprocess_times)
         """
         try:
-            from thirdparty.PartUV.partuv.preprocess import preprocess
+            from partuv.preprocess import preprocess
             logger.info(f"Preprocessing mesh: {mesh_path}")
 
             mesh, tree_filename, tree_dict, preprocess_times = preprocess(
@@ -184,8 +181,9 @@ class PartUVRunner:
             PartUVError: If UV generation fails
         """
         try:
+            import partuv
             from thirdparty.PartUV.pack.pack import pack_mesh
-            from thirdparty.PartUV.partuv.preprocess import preprocess, save_results
+            from partuv.preprocess import save_results
 
             # Validate input
             mesh_path = Path(mesh_path)

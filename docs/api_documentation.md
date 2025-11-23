@@ -788,6 +788,242 @@ All API responses follow a consistent format:
 
 ---
 
+## Mesh Retopology Endpoints
+
+### Retopologize Mesh
+- **URL**: `/api/v1/mesh-retopology/retopologize-mesh`
+- **Method**: `POST`
+- **Description**: Optimize mesh topology by reducing polygon count while preserving shape
+- **Authentication**: None required
+- **Request Body**:
+```json
+{
+  "mesh_path": "/path/to/mesh.obj",
+  "mesh_file_id": null,
+  "target_vertex_count": null,
+  "output_format": "obj",
+  "seed": 42,
+  "model_preference": "fastmesh_v1k_retopology"
+}
+```
+- **File Input Options**: Provide **one** of the following:
+  - `mesh_path`: Local file path (for server-side files)
+  - `mesh_file_id`: File ID from upload endpoint (**recommended**)
+- **Parameters**:
+  - `target_vertex_count` (optional): Override default vertex count target
+  - `output_format`: Output format (`obj`, `glb`, or `ply`)
+  - `seed` (optional): Random seed for reproducibility
+  - `model_preference`: Model variant to use:
+    - `fastmesh_v1k_retopology`: ~1000 vertices (faster, lower detail)
+    - `fastmesh_v4k_retopology`: ~4000 vertices (slower, higher detail)
+- **Response**:
+```json
+{
+  "job_id": "job_123456",
+  "status": "queued",
+  "message": "Mesh retopology job queued successfully"
+}
+```
+- **Completed Job Result**: When job is complete, includes:
+```json
+{
+  "output_mesh_path": "/outputs/meshes/retopo_mesh_123456.obj",
+  "original_stats": {
+    "vertices": 150000,
+    "faces": 300000
+  },
+  "output_stats": {
+    "vertices": 1024,
+    "faces": 2048
+  },
+  "retopology_info": {
+    "model": "fastmesh_v1k_retopology",
+    "variant": "V1K",
+    "vertex_reduction": "99.3%",
+    "face_reduction": "99.3%",
+    "seed": 42
+  }
+}
+```
+
+### Get Retopology Available Models
+- **URL**: `/api/v1/mesh-retopology/available-models`
+- **Method**: `GET`
+- **Description**: Get available retopology models and their specifications
+- **Authentication**: None required
+- **Response**:
+```json
+{
+  "available_models": ["fastmesh_v1k_retopology", "fastmesh_v4k_retopology"],
+  "models_details": {
+    "fastmesh_v1k_retopology": {
+      "description": "FastMesh V1K - Generates meshes with ~1000 vertices",
+      "target_vertices": 1000,
+      "recommended_for": "Game assets, mobile applications"
+    },
+    "fastmesh_v4k_retopology": {
+      "description": "FastMesh V4K - Generates meshes with ~4000 vertices",
+      "target_vertices": 4000,
+      "recommended_for": "High-quality assets, detailed models"
+    }
+  }
+}
+```
+
+### Get Mesh Retopology Supported Formats
+- **URL**: `/api/v1/mesh-retopology/supported-formats`
+- **Method**: `GET`
+- **Description**: Get supported formats for mesh retopology
+- **Authentication**: None required
+- **Response**:
+```json
+{
+  "input_formats": ["obj", "glb", "ply", "stl"],
+  "output_formats": ["obj", "glb", "ply"]
+}
+```
+
+---
+
+## UV Unwrapping Endpoints
+
+### Unwrap Mesh UV
+- **URL**: `/api/v1/mesh-uv-unwrapping/unwrap-mesh`
+- **Method**: `POST`
+- **Description**: Generate optimized UV coordinates for a 3D mesh using part-based unwrapping
+- **Authentication**: None required
+- **Request Body**:
+```json
+{
+  "mesh_path": "/path/to/mesh.obj",
+  "mesh_file_id": null,
+  "distortion_threshold": 1.25,
+  "pack_method": "blender",
+  "save_individual_parts": true,
+  "save_visuals": false,
+  "output_format": "obj",
+  "model_preference": "partuv_uv_unwrapping"
+}
+```
+- **File Input Options**: Provide **one** of the following:
+  - `mesh_path`: Local file path (for server-side files)
+  - `mesh_file_id`: File ID from upload endpoint (**recommended**)
+- **Parameters**:
+  - `distortion_threshold`: Maximum allowed distortion (1.0-5.0, default: 1.25)
+    - Lower values = less distortion but more UV seams
+    - Higher values = more distortion but fewer UV seams
+  - `pack_method`: UV packing method
+    - `blender`: Default packing using bpy (fast, good quality)
+    - `uvpackmaster`: Professional packing with part grouping (requires add-on)
+    - `none`: No packing, charts arranged in grid (fastest)
+  - `save_individual_parts`: Save individual part meshes separately (default: true)
+  - `save_visuals`: Save visualization images (default: false)
+  - `output_format`: Output format (`obj` or `glb`)
+  - `model_preference`: Model to use (currently only `partuv_uv_unwrapping`)
+- **Response**:
+```json
+{
+  "job_id": "job_123456",
+  "status": "queued",
+  "message": "Mesh UV unwrapping job queued successfully"
+}
+```
+- **Completed Job Result**: When job is complete, includes:
+```json
+{
+  "output_mesh_path": "/outputs/partuv/mesh_uv_123456/final_components.obj",
+  "packed_mesh_path": "/outputs/partuv/mesh_uv_123456/final_packed.obj",
+  "individual_parts_dir": "/outputs/partuv/mesh_uv_123456/individual_parts",
+  "num_components": 24,
+  "distortion": 1.18,
+  "uv_info": {
+    "model": "partuv_uv_unwrapping",
+    "num_uv_components": 24,
+    "num_parts": 8,
+    "final_distortion": 1.18,
+    "distortion_threshold": 1.25,
+    "pack_method": "blender",
+    "components_info": [
+      {
+        "chart_id": 0,
+        "num_faces": 152,
+        "distortion": 1.05
+      }
+    ]
+  }
+}
+```
+
+### Get UV Unwrapping Pack Methods
+- **URL**: `/api/v1/mesh-uv-unwrapping/pack-methods`
+- **Method**: `GET`
+- **Description**: Get available UV packing methods with descriptions
+- **Authentication**: None required
+- **Response**:
+```json
+{
+  "pack_methods": {
+    "blender": {
+      "description": "Default packing method using bpy",
+      "requirements": "bpy (installed automatically)",
+      "speed": "fast",
+      "features": []
+    },
+    "uvpackmaster": {
+      "description": "Professional packing with part grouping support",
+      "requirements": "UVPackMaster add-on (paid, requires separate installation)",
+      "speed": "medium",
+      "features": ["Part-based packing", "Multi-atlas support"]
+    },
+    "none": {
+      "description": "No packing - outputs unwrapped UV charts without arrangement",
+      "requirements": "None",
+      "speed": "fastest",
+      "features": []
+    }
+  }
+}
+```
+
+### Get UV Unwrapping Available Models
+- **URL**: `/api/v1/mesh-uv-unwrapping/available-models`
+- **Method**: `GET`
+- **Description**: Get available UV unwrapping models and their specifications
+- **Authentication**: None required
+- **Response**:
+```json
+{
+  "available_models": ["partuv_uv_unwrapping"],
+  "models_details": {
+    "partuv_uv_unwrapping": {
+      "description": "PartUV - Part-based UV unwrapping with minimal distortion",
+      "method": "Hierarchical part-based unwrapping",
+      "features": [
+        "Automatic part segmentation",
+        "Distortion minimization",
+        "Multiple packing options"
+      ],
+      "recommended_for": "General purpose, production assets"
+    }
+  }
+}
+```
+
+### Get UV Unwrapping Supported Formats
+- **URL**: `/api/v1/mesh-uv-unwrapping/supported-formats`
+- **Method**: `GET`
+- **Description**: Get supported formats for UV unwrapping
+- **Authentication**: None required
+- **Response**:
+```json
+{
+  "input_formats": ["obj", "glb"],
+  "output_formats": ["obj"]
+}
+```
+
+---
+
 ## Workflow Examples
 
 ### Example 1: Text to Textured Mesh Generation

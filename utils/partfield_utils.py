@@ -16,7 +16,7 @@ import numpy as np
 import torch
 import trimesh
 from easydict import EasyDict as edict
-from lightning.pytorch import seed_everything
+from pytorch_lightning import seed_everything
 from plyfile import PlyData
 from scipy.sparse import coo_matrix, csr_matrix
 from scipy.sparse.csgraph import connected_components

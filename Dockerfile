@@ -27,9 +27,7 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxrender-dev \
     libgomp1 \
-    libegl1 \
-    libegl1-mesa \
-    libgl1-mesa-dev \
+    libegl1-mesa-dev \
     libjpeg-dev \
     libwebp-dev \
     libgles2-mesa-dev \
@@ -37,6 +35,8 @@ RUN apt-get update && apt-get install -y \
     libxi6 \
     libxkbcommon-dev \
     xvfb \
+    libffi7 \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -52,7 +52,7 @@ RUN conda init bash
 # Create conda environment with Python 3.10
 RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
 RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
-RUN conda create -n 3daigc-api python=3.10 -y
+RUN conda create -n 3daigc-api python=3.10 libffi=3.3 -y
 
 # Make conda environment activation persistent
 SHELL ["conda", "run", "-n", "3daigc-api", "/bin/bash", "-c"]
@@ -66,6 +66,9 @@ WORKDIR /app
 # Copy the entire project
 COPY . .
 
+# Fix line endings for all shell scripts
+RUN find . -name "*.sh" -exec sed -i 's/\r$//' {} +
+
 # Setup proxy settings passed via build args
 ARG http_proxy
 ARG https_proxy
@@ -76,22 +79,28 @@ ENV no_proxy=$no_proxy
 
 # Install TRELLIS.2 dependencies
 WORKDIR /app/thirdparty/TRELLIS.2
-RUN bash setup.sh --basic --flash-attn --nvdiffrast --nvdiffrec --cumesh --o-voxel --flexgemm
-RUN pip install kaolin -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/torch-2.6.0_cu124.html
+# RUN bash setup.sh --basic --flash-attn --nvdiffrast --nvdiffrec --cumesh --o-voxel --flexgemm
+# RUN pip install kaolin -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/torch-2.6.0_cu124.html
 
 # Install TRELLIS(v1) requirements on top of TRELLIS.2
-RUN pip install pymeshfix igraph
-RUN git clone https://github.com/autonomousvision/mip-splatting.git /tmp/extensions/mip-splatting && \
-    pip install /tmp/extensions/mip-splatting/submodules/diff-gaussian-rasterization/ --no-build-isolation && \
-    rm -rf /tmp/extensions/mip-splatting
+# RUN pip install pymeshfix igraph
+# RUN git clone https://github.com/autonomousvision/mip-splatting.git /tmp/extensions/mip-splatting && \
+#     pip install /tmp/extensions/mip-splatting/submodules/diff-gaussian-rasterization/ --no-build-isolation && \
+#     rm -rf /tmp/extensions/mip-splatting
 
 # Install PartField dependencies
 WORKDIR /app/thirdparty/PartField
-RUN pip install lightning==2.2 h5py yacs trimesh scikit-image loguru boto3
-RUN pip install mesh2sdf tetgen pymeshlab plyfile einops libigl polyscope potpourri3d simple_parsing arrgh open3d psutil
-RUN pip install /app/assets/wheels/torch_scatter-2.1.2+pt26cu124-cp310-cp310-linux_x86_64.whl --no-deps
-RUN pip install /app/assets/wheels/torch_sparse-0.6.18+pt26cu124-cp310-cp310-linux_x86_64.whl --no-deps
-# RUN pip install torch-scatter torch_cluster -f https://data.pyg.org/whl/torch-2.6.0+cu124.html
+# RUN pip install lightning==2.2 h5py yacs trimesh scikit-image loguru boto3
+# RUN pip install mesh2sdf tetgen pymeshlab plyfile einops libigl polyscope potpourri3d simple_parsing arrgh open3d psutil
+# RUN pip install torch-scatter -f https://data.pyg.org/whl/torch-2.6.0+cu124.html
+# RUN pip install torch-sparse -f https://data.pyg.org/whl/torch-2.6.0+cu124.html
+# RUN pip install torch_cluster -f https://data.pyg.org/whl/torch-2.6.0+cu124.html
+
+# Install Hunyuan3D 2.1 dependencies
+# Install Hunyuan3D 2.1 requirements
+WORKDIR /app/thirdparty/Hunyuan3D-2.1
+RUN pip install -r requirements-inference.txt
+RUN pip install fast-simplification
 
 # Install Hunyuan3D 2.1 dependencies
 WORKDIR /app/thirdparty/Hunyuan3D-2.1
@@ -101,44 +110,45 @@ RUN cd hy3dpaint/custom_rasterizer && pip install -e . --no-build-isolation
 WORKDIR /app/thirdparty/Hunyuan3D-2.1/hy3dpaint/DifferentiableRenderer
 RUN bash compile_mesh_painter.sh
 
-# Install Hunyuan3D 2.1 requirements
-WORKDIR /app/thirdparty/Hunyuan3D-2.1
-RUN pip install -r requirements-inference.txt
-
 # Install UniRig dependencies
 WORKDIR /app/thirdparty/UniRig
 RUN pip install spconv-cu120 pyrender fast-simplification python-box timm
 
 # Install PartPacker dependencies
 WORKDIR /app/thirdparty/PartPacker
-RUN pip install pybind11==3.0.1
-RUN pip install meshiki kiui fpsample pymcubes einops
+# RUN pip install pybind11==3.0.1
+# RUN pip install meshiki kiui fpsample pymcubes einops
 
 # Install PartUV dependencies
-RUN pip install seaborn partuv blenderproc
+# RUN pip install seaborn partuv blenderproc
 
 # Install P3-SAM (Hunyuan3D-Part) dependencies
 WORKDIR /app/thirdparty/Hunyuan3DPart/P3SAM
-RUN pip install numba scikit-learn fpsample
+# RUN pip install numba scikit-learn fpsample
 
 # Install FastMesh dependencies
 WORKDIR /app/thirdparty/FastMesh
-RUN if [ -f "requirement_extra.txt" ]; then pip install -r requirement_extra.txt; fi
+# RUN if [ -f "requirement_extra.txt" ]; then pip install -r requirement_extra.txt; fi
 
 # Install UltraShape dependencies
 WORKDIR /app/thirdparty/UltraShape
-RUN pip install git+https://github.com/ashawkey/cubvh --no-build-isolation
+# RUN pip install git+https://github.com/ashawkey/cubvh --no-build-isolation
 
 # Install VoxHammer dependencies
 WORKDIR /app/thirdparty/VoxHammer
-RUN pip install git+https://github.com/huanngzh/bpy-renderer.git
-RUN pip install pysdf sentencepiece
+# RUN pip install git+https://github.com/huanngzh/bpy-renderer.git
+# RUN pip install pysdf sentencepiece
 
 # Install main project dependencies
 WORKDIR /app
 RUN pip install -r requirements.txt
 RUN pip install -r requirements-test.txt
 RUN pip install huggingface_hub
+
+# Pre-download rembg u2net model to prevent runtime download issues
+RUN mkdir -p /root/.u2net && \
+    wget -O /root/.u2net/u2net.onnx https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx || \
+    echo "Failed to download u2net.onnx, will attempt at runtime"
 
 # Create necessary directories
 RUN mkdir -p /app/uploads /app/data /app/logs /app/outputs

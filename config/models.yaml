@@ -5,7 +5,7 @@
 # text-conditioned geometry/geometry+texture generation
 text_to_textured_mesh:
   trellis_text_to_textured_mesh:
-    vram_requirement: 11776  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["text"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/TRELLIS"
@@ -15,7 +15,7 @@ text_to_textured_mesh:
 # text-conditioned mesh painting
 text_mesh_painting:
   trellis_text_mesh_painting:
-    vram_requirement: 11776  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["mesh", "text"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/TRELLIS"
@@ -25,7 +25,7 @@ text_mesh_painting:
 # image-conditioned geometry generation
 image_to_raw_mesh:    
   hunyuan3dv21_image_to_raw_mesh:
-    vram_requirement: 8192  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["image"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/Hunyuan3D-2.1"
@@ -33,7 +33,7 @@ image_to_raw_mesh:
     max_workers: 1
     
   partpacker_image_to_raw_mesh:
-    vram_requirement: 10240  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["image"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/PartPacker"
@@ -41,7 +41,7 @@ image_to_raw_mesh:
     max_workers: 1
   
   ultrashape_image_to_raw_mesh:
-    vram_requirement: 26640  # MB (20GB: 8GB Hunyuan + 12GB UltraShape)
+    vram_requirement: 7168  # MB (20GB: 8GB Hunyuan + 12GB UltraShape)
     supported_inputs: ["image"]
     supported_outputs: ["glb", "obj", "ply"]
     model_path: "thirdparty/UltraShape"
@@ -51,7 +51,7 @@ image_to_raw_mesh:
 # image-conditioned geometry+texture generation
 image_to_textured_mesh:
   trellis_image_to_textured_mesh:
-    vram_requirement: 11776  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["image"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/TRELLIS"
@@ -59,7 +59,7 @@ image_to_textured_mesh:
     max_workers: 1
 
   trellis2_image_to_textured_mesh:
-    vram_requirement: 12288  # MB (12GB, TRELLIS.2)
+    vram_requirement: 7168  # MB (12GB, TRELLIS.2)
     supported_inputs: ["image"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/TRELLIS.2"
@@ -67,7 +67,7 @@ image_to_textured_mesh:
     max_workers: 1
 
   hunyuan3dv21_image_to_textured_mesh:
-    vram_requirement: 19456  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["image"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/Hunyuan3D-2.1"
@@ -77,7 +77,7 @@ image_to_textured_mesh:
 # image-conditioned mesh painting
 image_mesh_painting:
   trellis_image_mesh_painting:
-    vram_requirement: 11776  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["mesh", "image"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/TRELLIS"
@@ -85,7 +85,7 @@ image_mesh_painting:
     max_workers: 1
 
   trellis2_image_mesh_painting:
-    vram_requirement: 12288  # MB (12GB, TRELLIS.2)
+    vram_requirement: 7168  # MB (12GB, TRELLIS.2)
     supported_inputs: ["mesh", "image"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/TRELLIS.2"
@@ -93,7 +93,7 @@ image_mesh_painting:
     max_workers: 1
 
   hunyuan3dv21_image_mesh_painting:
-    vram_requirement: 12288  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["mesh", "text", "image"]
     supported_outputs: ["glb", "obj"]
     model_path: "thirdparty/Hunyuan3D-2"
@@ -103,7 +103,7 @@ image_mesh_painting:
 # mesh segmentation
 mesh_segmentation:
   partfield_mesh_segmentation:
-    vram_requirement: 4096  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["glb", "obj"]
     supported_outputs: ["glb"]
     model_path: "thirdparty/PartField"
@@ -111,7 +111,7 @@ mesh_segmentation:
     max_workers: 1
   
   p3sam_mesh_segmentation:
-    vram_requirement: 61440  # MB (60GB, P3-SAM)
+    vram_requirement: 7168  # MB (60GB, P3-SAM)
     supported_inputs: ["glb", "obj", "ply"]
     supported_outputs: ["glb"]
     model_path: "pretrained/P3-SAM/last.ckpt"
@@ -120,7 +120,7 @@ mesh_segmentation:
 
 auto_rig:
   unirig_auto_rig:
-    vram_requirement: 9216  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["obj", "glb", "fbx"]
     supported_outputs: ["glb", "fbx"]
     model_path: "thirdparty/UniRig"
@@ -130,7 +130,7 @@ auto_rig:
 # mesh retopology
 mesh_retopology:
   fastmesh_v1k_retopology:
-    vram_requirement: 16384  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["obj", "glb", "ply", "stl"]
     supported_outputs: ["obj", "glb", "ply"]
     model_path: "pretrained/FastMesh-V1K"
@@ -138,7 +138,7 @@ mesh_retopology:
     max_workers: 1
     
   fastmesh_v4k_retopology:
-    vram_requirement: 24500  # MB
+    vram_requirement: 7168  # MB
     supported_inputs: ["obj", "glb", "ply", "stl"]
     supported_outputs: ["obj", "glb", "ply"]
     model_path: "pretrained/FastMesh-V4K"
@@ -158,7 +158,7 @@ uv_unwrapping:
 # Mesh editing (local editing with VoxHammer)
 text_mesh_editing:
   voxhammer_text_mesh_editing:
-    vram_requirement: 40960  # MB (40GB: TRELLIS + rendering)
+    vram_requirement: 7168  # MB (40GB: TRELLIS + rendering)
     supported_inputs: ["mesh", "text"]
     supported_outputs: ["glb"]
     model_path: "thirdparty/VoxHammer"
@@ -167,7 +167,7 @@ text_mesh_editing:
 
 image_mesh_editing:
   voxhammer_image_mesh_editing:
-    vram_requirement: 40960  # MB (40GB: TRELLIS + rendering)
+    vram_requirement: 7168  # MB (40GB: TRELLIS + rendering)
     supported_inputs: ["mesh", "image"]
     supported_outputs: ["glb"]
     model_path: "thirdparty/VoxHammer"

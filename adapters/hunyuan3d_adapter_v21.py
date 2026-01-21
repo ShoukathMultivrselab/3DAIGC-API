@@ -140,12 +140,22 @@ class Hunyuan3DV21ImageToMeshAdapterCommon(ImageToMeshModel):
                     self.hunyuan3d_root / "hy3dpaint/hunyuanpaintpbr"
                 )
                 conf.multiview_pretrained_path = str(self.model_path)
-                conf.dino_ckpt_path = str(
-                    self.model_path / ".." / ".." / "dinov2-giant"
-                )
-                conf.realesrgan_ckpt_path = str(
-                    self.model_path / ".." / ".." / "misc" / "RealESRGAN_x4plus.pth"
-                )
+                
+                # Check for local dinov2, fallback to HF hub if not found
+                dino_path = (self.model_path / ".." / ".." / "dinov2-giant").resolve()
+                if dino_path.exists() and (dino_path / "config.json").exists():
+                    logger.info(f"Using local dinov2 model at {dino_path}")
+                    conf.dino_ckpt_path = str(dino_path)
+                else:
+                    logger.warning(f"Local dinov2 not found or invalid at {dino_path}, using default 'facebook/dinov2-giant'")
+                    conf.dino_ckpt_path = "facebook/dinov2-giant"
+
+                # Check for local RealESRGAN
+                realesrgan_path = (self.model_path / ".." / ".." / "misc" / "RealESRGAN_x4plus.pth").resolve()
+                if realesrgan_path.exists():
+                    conf.realesrgan_ckpt_path = str(realesrgan_path)
+                else:
+                     logger.warning(f"RealESRGAN not found at {realesrgan_path}. Using default path.")
 
                 if "bg_remover" not in loaded_models:
                     self.bg_remover = BackgroundRemover()
@@ -241,7 +251,20 @@ class Hunyuan3DV21ImageToRawMeshAdapter(Hunyuan3DV21ImageToMeshAdapterCommon):
             if "image_path" not in inputs:
                 raise ValueError("image_path is required for image-to-mesh generation")
 
-            image_path = Path(inputs["image_path"])
+            # Normalize path (replace backslashes with forward slashes for Linux)
+            raw_image_path = inputs["image_path"].replace("\\", "/")
+            image_path = Path(raw_image_path)
+            
+            # Handle potential path duplication or relative path issues
+            if not image_path.exists():
+                # Try relative to CWD if absolute path fails (common in container environment)
+                cwd = Path(os.getcwd())
+                if (cwd / image_path).exists():
+                    image_path = cwd / image_path
+                # Handle case where path might be relative but missing ./ prefix
+                elif (cwd / raw_image_path.strip("/")).exists():
+                     image_path = cwd / raw_image_path.strip("/")
+            
             if not image_path.exists():
                 raise FileNotFoundError(f"Input image file not found: {image_path}")
 
@@ -343,7 +366,20 @@ class Hunyuan3DV21ImageToTexturedMeshAdapter(Hunyuan3DV21ImageToMeshAdapterCommo
             if "image_path" not in inputs:
                 raise ValueError("image_path is required for image-to-mesh generation")
 
-            image_path = Path(inputs["image_path"])
+            # Normalize path (replace backslashes with forward slashes for Linux)
+            raw_image_path = inputs["image_path"].replace("\\", "/")
+            image_path = Path(raw_image_path)
+            
+            # Handle potential path duplication or relative path issues
+            if not image_path.exists():
+                # Try relative to CWD if absolute path fails (common in container environment)
+                cwd = Path(os.getcwd())
+                if (cwd / image_path).exists():
+                    image_path = cwd / image_path
+                # Handle case where path might be relative but missing ./ prefix
+                elif (cwd / raw_image_path.strip("/")).exists():
+                     image_path = cwd / raw_image_path.strip("/")
+            
             if not image_path.exists():
                 raise FileNotFoundError(f"Input image file not found: {image_path}")
 
@@ -387,16 +423,34 @@ class Hunyuan3DV21ImageToTexturedMeshAdapter(Hunyuan3DV21ImageToMeshAdapterCommo
                 base_name = f"{self.model_id}_{image_path.stem}"
                 output_path = self._generate_output_path(base_name, output_format)
 
+                # Generate intermediate OBJ path
+                # Hunyuan3D's paint_pipeline saves to OBJ first, then converts to GLB if requested.
+                # If we pass a .glb path as output_mesh_path, it saves OBJ data into the .glb file,
+                # which causes trimesh.load to fail during conversion.
+                intermediate_obj_path = output_path.with_suffix(".obj")
+
                 # Run texture painting
-                final_mesh_path = self.paint_pipeline(
-                    temp_mesh_path, str(image_path), str(output_path)
+                # Set save_glb=True if output_format is glb, this will call convert_obj_to_glb internally
+                self.paint_pipeline(
+                    temp_mesh_path, 
+                    str(image_path), 
+                    str(intermediate_obj_path),
+                    save_glb=(output_format == "glb")
                 )
 
-                # Ensure the output is at our desired path
-                if final_mesh_path != str(output_path):
-                    import shutil
+                # Determine the actual result path from the pipeline
+                if output_format == "glb":
+                    actual_result_path = intermediate_obj_path.with_suffix(".glb")
+                else:
+                    actual_result_path = intermediate_obj_path
 
-                    shutil.move(final_mesh_path, output_path)
+                # Ensure the output is at our desired final path
+                if str(actual_result_path) != str(output_path):
+                    import shutil
+                    if actual_result_path.exists():
+                        shutil.move(str(actual_result_path), str(output_path))
+                    else:
+                        raise FileNotFoundError(f"Pipeline finished but could not find output at {actual_result_path}")
 
             finally:
                 # Clean up temporary file
